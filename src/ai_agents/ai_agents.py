@@ -1,5 +1,5 @@
 from agents import Agent
-from tools.blackboard_tools import post_demand_to_blackboard
+from tools.blackboard import post_demand_to_blackboard
 
 boss = Agent(
     name="boss",

@@ -12,9 +12,9 @@ from config.settings import settings
 
 blackboard = Blackboard()
 
-import tools.blackboard_tools
+import tools.blackboard
 
-tools.blackboard_tools.blackboard = blackboard
+tools.blackboard.blackboard = blackboard
 
 logging.basicConfig(
     level=logging.INFO,
