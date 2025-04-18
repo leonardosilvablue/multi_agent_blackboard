@@ -41,7 +41,9 @@ Este sistema implementa um modelo de agentes de IA que trabalham em conjunto par
 
 ## Uso
 
-1. Inicie o sistema:
+### CLI Mode
+
+1. Inicie o sistema via linha de comando:
    ```bash
    python src/main.py
    ```
@@ -51,6 +53,44 @@ Este sistema implementa um modelo de agentes de IA que trabalham em conjunto par
    - Digite 'view' para ver o conteúdo do quadro negro
    - Digite 'help' para ver os comandos disponíveis
    - Digite 'exit' ou pressione Ctrl+C para sair
+
+### API Mode
+
+1. Inicie o servidor API:
+   ```bash
+   python src/server.py
+   ```
+
+2. A API estará disponível em `http://localhost:8000`
+
+#### Endpoints
+
+- **POST /api/v1/demands**
+  ```json
+  {
+    "demand": "quero contratar o bryan soares",
+    "priority": "normal",
+    "department": "RH"
+  }
+  ```
+
+- **GET /api/v1/demands/{task_id}/status**
+  - Retorna o status de uma demanda específica
+
+- **GET /api/v1/health**
+  - Verifica a saúde do sistema
+
+#### Exemplo de uso com curl
+
+```bash
+# Criar uma nova demanda
+curl -X POST http://localhost:8000/api/v1/demands \
+  -H "Content-Type: application/json" \
+  -d '{"demand": "quero contratar o bryan soares"}'
+
+# Verificar status de uma demanda
+curl http://localhost:8000/api/v1/demands/1234abcd/status
+```
 
 ## Exemplos
 
