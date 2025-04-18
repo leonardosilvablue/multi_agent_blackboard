@@ -123,7 +123,7 @@ async def monitor_blackboard_for_demands():
                             type_="system_log",
                         )
 
-        await asyncio.sleep(2)
+        await asyncio.sleep(5)
 
 
 async def heads_discussion(demand_content, demand_id):
@@ -171,7 +171,7 @@ async def heads_discussion(demand_content, demand_id):
         f"[PLAN_POSTED] [DemandID: {demand_id}] [PlanID: {plan_id}] Head posted structured plan to blackboard"
     )
     head_logger.info(
-        f"[PLAN_SUMMARY] [PlanID: {plan_id}] Plan summary: {structured_plan[:100]}..."
+        f"[PLAN_SUMMARY] [PlanID: {plan_id}] Plan summary: {structured_plan}"
     )
 
     head_logger.info(
@@ -224,7 +224,7 @@ async def process_with_squad_leader(plan, plan_id, demand_id):
         f"[TASKS_POSTED] [PlanID: {plan_id}] [MessageID: {message_id}] Tasks posted to blackboard"
     )
     squad_leader_logger.info(
-        f"[TASKS_SUMMARY] [PlanID: {plan_id}] Summary: {task_breakdown[:100]}..."
+        f"[TASKS_SUMMARY] [PlanID: {plan_id}] Summary: {task_breakdown}"
     )
 
     task_lines = task_breakdown.split("\n")
@@ -280,7 +280,7 @@ async def process_with_worker(task, task_id, plan_id):
         f"[EXECUTION_POSTED] [TaskID: {task_id}] [MessageID: {message_id}] Result posted to blackboard"
     )
     worker_logger.info(
-        f"[EXECUTION_SUMMARY] [TaskID: {task_id}] Summary: {execution_result[:100]}..."
+        f"[EXECUTION_SUMMARY] [TaskID: {task_id}] Summary: {execution_result}"
     )
 
     return execution_result
@@ -290,10 +290,16 @@ async def view_blackboard():
     """Display the current blackboard messages in a readable format."""
     messages = await blackboard.get_all()
     print("\n=== BLACKBOARD CONTENTS ===")
+    print(f"Total messages: {len(messages)}\n")
+
     for msg in messages:
-        print(
-            f"[{msg['timestamp']}] {msg['sender']} ({msg['type']}): {msg['content'][:50]}..."
-        )
+        print(f"Message ID: {msg['id']}")
+        print(f"Type: {msg['type']}")
+        print(f"Sender: {msg['sender']}")
+        print(f"Timestamp: {msg['timestamp']}")
+        print("Content:")
+        print(f"{msg['content']}")
+        print("-" * 50)
     print("===========================\n")
 
 
