@@ -283,3 +283,68 @@ To ensure the efficient handling of the hiring process for Bryan, I...
 2025-04-18 18:12:20,014 [INFO] [httpx] HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
 2025-04-18 18:12:20,131 [INFO] [httpx] HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
 2025-04-18 18:12:20,471 [INFO] [main] [SYSTEM_SHUTDOWN] System shutting down
+2025-04-18 18:19:52,108 [INFO] [main] [SYSTEM_START] Multi-agent blackboard system starting up
+2025-04-18 18:19:52,108 [INFO] [main] [MONITOR_LAUNCH] Starting blackboard monitoring service
+2025-04-18 18:19:56,636 [INFO] [main] [SHUTDOWN_INITIATED] User initiated shutdown
+2025-04-18 18:19:56,637 [INFO] [main] [MONITOR_STOPPED] Blackboard monitor has been cancelled
+2025-04-18 18:19:56,637 [INFO] [main] [SYSTEM_SHUTDOWN] System shutting down
+2025-04-18 18:21:16,354 [INFO] [main] [SYSTEM_START] Multi-agent blackboard system starting up
+2025-04-18 18:21:16,355 [INFO] [main] [MONITOR_LAUNCH] Starting blackboard monitoring service
+2025-04-18 18:21:21,567 [INFO] [main] [TASK_RECEIVED] User entered task: quero contratar o bryan soares
+2025-04-18 18:21:21,567 [INFO] [main] [FLOW_START] [TaskID: 573d2227] New task received: quero contratar o bryan soares
+2025-04-18 18:21:21,567 [INFO] [boss] [BOSS_START] [TaskID: 573d2227] Boss processing task: quero contratar o bryan soares
+2025-04-18 18:21:21,570 [INFO] [blackboard] [MONITOR_START] Starting to monitor blackboard for demands...
+2025-04-18 18:21:21,570 [INFO] [blackboard.core] [BLACKBOARD_GET_ALL] Retrieved 0 total messages
+2025-04-18 18:21:22,204 [INFO] [httpx] HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2025-04-18 18:21:23,572 [INFO] [blackboard.core] [BLACKBOARD_GET_ALL] Retrieved 0 total messages
+2025-04-18 18:21:25,237 [INFO] [httpx] HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2025-04-18 18:21:25,243 [INFO] [blackboard_tools] [TOOL_CALLED] [DemandID: 53965762] Director is posting demand to blackboard
+2025-04-18 18:21:25,244 [INFO] [blackboard_tools] [DEMAND_CONTENT] [DemandID: 53965762] Content: Iniciar o processo de contratação de Bryan Soares. Verificar requisitos para a posição e seguir com a preparação de contrato e integração. Coordenar com o RH e o gerente do departamento relevante.
+2025-04-18 18:21:25,244 [INFO] [blackboard.core] [BLACKBOARD_POST_SYNC] [MessageID: 6da88715] New message posted from director, type: demand
+2025-04-18 18:21:25,244 [INFO] [blackboard_tools] [DEMAND_POSTED] [DemandID: 53965762] [MessageID: 6da88715] Successfully posted to blackboard
+2025-04-18 18:21:25,574 [INFO] [blackboard.core] [BLACKBOARD_GET_ALL] Retrieved 1 total messages
+2025-04-18 18:21:25,575 [INFO] [blackboard] [DEMANDS_FOUND] Found 1 demand(s) on blackboard.
+2025-04-18 18:21:25,575 [INFO] [blackboard] [DEMAND_PROCESSING] [DemandID: 027543c0] Processing demand: Iniciar o processo de contratação de Bryan Soares....
+2025-04-18 18:21:25,575 [INFO] [head] [HEAD_START] [DemandID: 027543c0] Head starting to process demand
+2025-04-18 18:21:25,575 [INFO] [head] [HEAD_THINKING] [DemandID: 027543c0] Head is analyzing the demand
+2025-04-18 18:21:26,364 [INFO] [httpx] HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2025-04-18 18:21:26,369 [INFO] [boss] [BOSS_COMPLETE] [TaskID: 573d2227] Boss completed processing in 4.80 seconds
+2025-04-18 18:21:26,369 [INFO] [boss] [BOSS_OUTPUT] [TaskID: 573d2227] Output: A demanda para iniciar o processo de contratação de Bryan Soares foi postada com sucesso no quadro. O RH e o departamento relevante serão notificados para dar seguimento ao processo. Se precisar de mais alguma coisa, estou à disposição!
+2025-04-18 18:21:26,369 [INFO] [main] [SYSTEM_RUNNING] System is now running and monitoring the blackboard
+2025-04-18 18:21:26,369 [INFO] [main] [HEARTBEAT] System running for 1 minute(s)
+2025-04-18 18:21:27,079 [INFO] [httpx] HTTP Request: POST https://api.openai.com/v1/traces/ingest "HTTP/1.1 204 No Content"
+2025-04-18 18:21:37,789 [INFO] [httpx] HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2025-04-18 18:21:37,794 [INFO] [head] [HEAD_COMPLETE] [DemandID: 027543c0] Head finished analysis in 12.22 seconds
+2025-04-18 18:21:37,794 [INFO] [blackboard.core] [BLACKBOARD_POST] [MessageID: ad28ca83] New message posted from head, type: structured_plan
+2025-04-18 18:21:37,794 [INFO] [head] [PLAN_POSTED] [DemandID: 027543c0] [PlanID: 6b0e74fd] Head posted structured plan to blackboard
+2025-04-18 18:21:37,794 [INFO] [head] [PLAN_SUMMARY] [PlanID: 6b0e74fd] Plan summary: ### Demand Analysis and Structured Plan
+
+#### 1. Clear Understanding of the Request
+
+**Objective:** ...
+2025-04-18 18:21:37,794 [INFO] [head] [PLAN_READY] [PlanID: 6b0e74fd] Plan is ready for squad leaders to implement
+2025-04-18 18:21:37,794 [INFO] [squad_leader] [SQUAD_LEADER_START] [PlanID: 6b0e74fd] Squad leader processing plan
+2025-04-18 18:21:37,794 [INFO] [squad_leader] [SQUAD_LEADER_START] [PlanID: 6b0e74fd] Squad leader processing plan
+2025-04-18 18:21:43,256 [INFO] [httpx] HTTP Request: POST https://api.openai.com/v1/traces/ingest "HTTP/1.1 204 No Content"
+2025-04-18 18:21:48,974 [INFO] [httpx] HTTP Request: POST https://api.openai.com/v1/responses "HTTP/1.1 200 OK"
+2025-04-18 18:21:48,978 [INFO] [squad_leader] [SQUAD_LEADER_COMPLETE] [PlanID: 6b0e74fd] Completed in 11.18 seconds
+2025-04-18 18:21:48,978 [INFO] [squad_leader] [SQUAD_LEADER_COMPLETE] [PlanID: 6b0e74fd] Completed in 11.18 seconds
+2025-04-18 18:21:48,979 [INFO] [blackboard.core] [BLACKBOARD_POST] [MessageID: a3d030a5] New message posted from squad_leader, type: task_breakdown
+2025-04-18 18:21:48,979 [INFO] [squad_leader] [TASKS_POSTED] [PlanID: 6b0e74fd] [MessageID: a3d030a5] Tasks posted to blackboard
+2025-04-18 18:21:48,979 [INFO] [squad_leader] [TASKS_POSTED] [PlanID: 6b0e74fd] [MessageID: a3d030a5] Tasks posted to blackboard
+2025-04-18 18:21:48,979 [INFO] [squad_leader] [TASKS_SUMMARY] [PlanID: 6b0e74fd] Summary: Below is a structured breakdown of the plan into specific, actionable tasks:
+
+### Week 1: Role Requi...
+2025-04-18 18:21:48,979 [INFO] [squad_leader] [TASKS_SUMMARY] [PlanID: 6b0e74fd] Summary: Below is a structured breakdown of the plan into specific, actionable tasks:
+
+### Week 1: Role Requi...
+2025-04-18 18:21:48,979 [INFO] [blackboard] [DEMAND_MARKED] [DemandID: 027543c0] Changed type from 'demand' to 'demand_processed'
+2025-04-18 18:21:48,979 [INFO] [blackboard.core] [BLACKBOARD_POST] [MessageID: 7656854f] New message posted from system, type: system_log
+2025-04-18 18:21:50,980 [INFO] [blackboard.core] [BLACKBOARD_GET_ALL] Retrieved 4 total messages
+2025-04-18 18:21:52,982 [INFO] [blackboard.core] [BLACKBOARD_GET_ALL] Retrieved 4 total messages
+2025-04-18 18:21:54,214 [INFO] [httpx] HTTP Request: POST https://api.openai.com/v1/traces/ingest "HTTP/1.1 204 No Content"
+2025-04-18 18:21:54,984 [INFO] [blackboard.core] [BLACKBOARD_GET_ALL] Retrieved 4 total messages
+2025-04-18 18:21:56,985 [INFO] [blackboard.core] [BLACKBOARD_GET_ALL] Retrieved 4 total messages
+2025-04-18 18:21:58,987 [INFO] [blackboard.core] [BLACKBOARD_GET_ALL] Retrieved 4 total messages
+2025-04-18 18:22:00,988 [INFO] [blackboard.core] [BLACKBOARD_GET_ALL] Retrieved 4 total messages
+2025-04-18 18:22:01,250 [INFO] [main] [SYSTEM_SHUTDOWN] System shutting down

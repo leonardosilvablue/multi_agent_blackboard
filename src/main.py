@@ -9,11 +9,9 @@ from agents import Runner
 from ai_agents.ai_agents import boss, director, head, squad_leader, worker
 from blackboard import Blackboard
 from config.settings import settings
-
-blackboard = Blackboard()
-
 import tools.blackboard
 
+blackboard = Blackboard()
 tools.blackboard.blackboard = blackboard
 
 logging.basicConfig(
@@ -339,7 +337,7 @@ async def main():
         print("System is running. Press Ctrl+C to exit.")
         print("Type 'view' and press Enter to see the blackboard contents.")
 
-        input_task = asyncio.create_task(handle_commands())
+        asyncio.create_task(handle_commands())
 
         heartbeat_counter = 0
         while True:

@@ -34,7 +34,7 @@ class Blackboard:
                 f"[BLACKBOARD_POST] [MessageID: {message_id}] New message posted from {sender}, type: {type_}"
             )
             blackboard_logger.debug(
-                f"[BLACKBOARD_POST_CONTENT] [MessageID: {message_id}] Content: {content[:100]}..."
+                f"[BLACKBOARD_POST_CONTENT] [MessageID: {message_id}] Content: {content}"
             )
 
         return message_id

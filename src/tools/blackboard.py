@@ -16,9 +16,7 @@ def post_demand_to_blackboard(demand: str) -> str:
     tools_logger.info(
         f"[TOOL_CALLED] [DemandID: {demand_id}] Director is posting demand to blackboard"
     )
-    tools_logger.info(
-        f"[DEMAND_CONTENT] [DemandID: {demand_id}] Content: {demand[:100]}..."
-    )
+    tools_logger.info(f"[DEMAND_CONTENT] [DemandID: {demand_id}] Content: {demand}")
 
     try:
         message_id = blackboard.post_sync("director", demand, type_="demand")
