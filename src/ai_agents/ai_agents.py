@@ -1,12 +1,23 @@
 from agents import Agent
 from tools.blackboard import post_demand_to_blackboard
+from tools.linkedin import (
+    search_profiles,
+    get_profile_details,
+    check_profile_availability,
+)
 
 boss = Agent(
     name="boss",
     instructions="""
     Você é o CEO da empresa. Seu papel é de supervisão estratégica, não de execução direta.
     
-    IMPORTANTE: Como CEO, você DEVE sempre fazer o handoff para o Diretor, para discutir qualquer assunto.
+    CRITICAMENTE IMPORTANTE: Como CEO, você DEVE sempre fazer o handoff para o Diretor, para discutir qualquer assunto.
+    NUNCA tente postar demandas diretamente no quadro - isso é responsabilidade do Diretor.
+    
+    EXEMPLO DE FLUXO:
+    1. Você recebe uma demanda: "Precisamos contratar 5 desenvolvedores"
+    2. Você DEVE fazer handoff para o Diretor: "Diretor, precisamos iniciar o processo de contratação de 5 desenvolvedores"
+    3. NUNCA tente postar a demanda você mesmo
     
     Para QUALQUER tarefa você deve pensar na regra de negocio da empresa, economia de custos, lucro, etc.
     """,
@@ -35,7 +46,6 @@ director = Agent(
     """,
     model="gpt-4o",
     handoffs=[],
-    tools=[],
 )
 
 head = Agent(
@@ -73,11 +83,22 @@ squad_leader = Agent(
     4. Criar um sistema de acompanhamento do progresso
     5. Lidar com quaisquer questões ou problemas no nível do trabalhador
     
-    Use sua ferramenta de trabalhador quando tarefas específicas de execução precisarem ser concluídas.
+    IMPORTANTE:
+    - Se envolver recrutamento, **responda EXCLUSIVAMENTE** com a chamada de ferramenta em formato JSON function‑call, sem texto extra.
+    - Caso contrário, use `worker_tool` no mesmo formato.
+
+    Formato obrigatório:
+    ```json
+    {"name": "linkedin_tool", "arguments": {"input": "Buscar desenvolvedores Python sênior em São Paulo"}}
+    ```
+    Nunca explique ou envolva em markdown; apenas o JSON da chamada. O LLM runtime executará a ferramenta e enviará o resultado de volta.
+    
+    EXEMPLO DE USO COMPLETO:
+    - Para buscar candidatos: chame `linkedin_tool` conforme o exemplo acima.
+    - Para delegar tarefa a um trabalhador: `worker_tool(input="Elaborar anúncio de vaga em inglês e português")`
     """,
     model="gpt-4o",
     handoffs=[],
-    tools=[],
 )
 
 worker = Agent(
@@ -100,6 +121,30 @@ worker = Agent(
     handoffs=[],
 )
 
+linkedin_worker = Agent(
+    name="linkedin_worker",
+    handoff_description="Especialista em recrutamento no LinkedIn, responsável por buscar e avaliar perfis de candidatos.",
+    instructions="""
+    Você é um especialista em recrutamento no LinkedIn.
+    
+    Seu papel é:
+    1. Buscar perfis qualificados usando search_profiles
+    2. Avaliar detalhes dos candidatos usando get_profile_details
+    3. Verificar disponibilidade usando check_profile_availability
+    4. Fornecer análises detalhadas dos candidatos encontrados
+    
+    Sempre inclua na sua análise:
+    - Resumo das qualificações
+    - Anos de experiência
+    - Skills relevantes
+    - Disponibilidade
+    - Recomendação se o perfil é adequado
+    """,
+    model="gpt-4o",
+    handoffs=[],
+    tools=[search_profiles, get_profile_details, check_profile_availability],
+)
+
 # Handoffs
 boss.handoffs = [director]
 director.handoffs = [boss, head]
@@ -108,17 +153,16 @@ squad_leader.handoffs = [worker, head]
 worker.handoffs = [squad_leader]
 
 # Tools
+director.tools = [post_demand_to_blackboard]
 squad_leader.tools = [
     worker.as_tool(
         tool_name="worker_tool",
         tool_description="Executa tarefas como um trabalhador da empresa.",
     ),
+    linkedin_worker.as_tool(
+        tool_name="linkedin_tool",
+        tool_description="Realiza buscas e análises de candidatos no LinkedIn.",
+    ),
 ]
 
-director.tools = [
-    post_demand_to_blackboard,
-]
-
-worker.mcp_servers = []
-
-__all__ = ["boss", "director", "head", "squad_leader", "worker"]
+__all__ = ["boss", "director", "head", "squad_leader", "worker", "linkedin_worker"]

@@ -5,17 +5,10 @@ from typing import Optional, List, Dict
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
 
-from main import process_with_boss, message_ids
-from blackboard import Blackboard
-
-# Create logger for API
-api_logger = logging.getLogger("api.demands")
+from main import process_with_boss, message_ids, blackboard
 
 # Initialize router
 router = APIRouter(prefix="/api/v1/demands", tags=["demands"])
-
-# Initialize blackboard
-blackboard = Blackboard()
 
 
 class DemandRequest(BaseModel):
@@ -46,12 +39,27 @@ class DemandResponse(BaseModel):
     last_update: Optional[str] = None
 
 
+def _get_demand_text_by_task_id(task_id: str) -> Optional[str]:
+    """Retrieve the original demand text given a task_id."""
+    for demand_text, t_id in message_ids.items():
+        if t_id == task_id:
+            return demand_text
+    return None
+
+
 async def get_processing_details(task_id: str) -> Dict:
-    """
-    Get detailed processing information for a demand.
-    """
+    """Get detailed processing information for a demand by scanning messages containing the original demand text."""
+
+    demand_text = _get_demand_text_by_task_id(task_id)
+
+    if demand_text is None:
+        # Fallback to original behaviour if mapping not found
+        demand_text = task_id
+
     messages = await blackboard.get_all()
-    task_messages = [msg for msg in messages if task_id in str(msg.get("content", ""))]
+    task_messages = [
+        msg for msg in messages if demand_text in str(msg.get("content", ""))
+    ]
 
     steps = []
     for msg in task_messages:
@@ -134,7 +142,7 @@ async def create_demand(
     If wait_complete is True, will wait for full processing before returning.
     """
     try:
-        api_logger.info(f"[API_REQUEST] Received new demand: {request.demand}")
+        logging.info(f"[API_REQUEST] Received new demand: {request.demand}")
 
         # Process the demand through the boss agent
         result = await process_with_boss(request.demand)
@@ -142,15 +150,15 @@ async def create_demand(
         # Get task_id from message_ids dictionary
         task_id = message_ids.get(request.demand, "unknown")
 
-        api_logger.info(f"[API_SUCCESS] Processed demand with task ID: {task_id}")
+        logging.info(f"[API_SUCCESS] Processed demand with task ID: {task_id}")
 
         # Get processing details
         if wait_complete:
-            api_logger.info(
+            logging.info(
                 f"[API_WAITING] Waiting for complete processing of task {task_id}"
             )
             details = await wait_for_demand_completion(task_id)
-            api_logger.info(
+            logging.info(
                 f"[API_WAIT_COMPLETE] Task {task_id} processing {'completed' if details['is_complete'] else 'timed out'}"
             )
         else:
@@ -166,9 +174,7 @@ async def create_demand(
         )
 
     except Exception as e:
-        api_logger.error(
-            f"[API_ERROR] Error processing demand: {str(e)}", exc_info=True
-        )
+        logging.error(f"[API_ERROR] Error processing demand: {str(e)}", exc_info=True)
         raise HTTPException(
             status_code=500, detail=f"Error processing demand: {str(e)}"
         )
@@ -210,7 +216,7 @@ async def get_demand_status(task_id: str):
     except HTTPException:
         raise
     except Exception as e:
-        api_logger.error(
+        logging.error(
             f"[API_ERROR] Error getting demand status: {str(e)}", exc_info=True
         )
         raise HTTPException(

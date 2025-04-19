@@ -1,4 +1,3 @@
-import logging
 import os
 import uvicorn
 from dotenv import load_dotenv
@@ -10,17 +9,9 @@ from routes import demands, health
 from config.settings import settings
 from main import monitor_blackboard_for_demands
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] [%(name)s] %(message)s",
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler("agent_system.log"),
-    ],
-)
-
-logger = logging.getLogger("server")
+# Use central logger configuration
+import logging
+from core.logger import setup_logging
 
 # Load environment variables
 load_dotenv()
@@ -41,19 +32,19 @@ async def lifespan(app: FastAPI):
     """
     # Start up
     global monitor_task
-    logger.info("[SERVER_STARTUP] Starting blackboard monitor...")
+    logging.info("[SERVER_STARTUP] Starting blackboard monitor...")
     monitor_task = asyncio.create_task(monitor_blackboard_for_demands())
 
     yield
 
     # Shutdown
     if monitor_task:
-        logger.info("[SERVER_SHUTDOWN] Stopping blackboard monitor...")
+        logging.info("[SERVER_SHUTDOWN] Stopping blackboard monitor...")
         monitor_task.cancel()
         try:
             await monitor_task
         except asyncio.CancelledError:
-            logger.info("[SERVER_SHUTDOWN] Blackboard monitor stopped successfully")
+            logging.info("[SERVER_SHUTDOWN] Blackboard monitor stopped successfully")
 
 
 # Initialize FastAPI app
@@ -68,10 +59,13 @@ app = FastAPI(
 app.include_router(demands.router)
 app.include_router(health.router)
 
+# Configure root logger once
+setup_logging()
+
 
 def main():
     """Run the FastAPI server."""
-    logger.info("[SERVER_START] Starting Multi-Agent Blackboard System API server")
+    logging.info("[SERVER_START] Starting Multi-Agent Blackboard System API server")
 
     # Run the server
     uvicorn.run(app, host="0.0.0.0", port=8000, log_level="info")
