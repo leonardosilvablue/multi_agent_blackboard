@@ -1,168 +1,162 @@
-from agents import Agent
-from tools.blackboard import post_demand_to_blackboard
-from tools.linkedin import (
-    search_profiles,
-    get_profile_details,
-    check_profile_availability,
-)
+from autogen_agentchat.agents import AssistantAgent
+from autogen_ext.models.openai import OpenAIChatCompletionClient
+from autogen_core.tools import FunctionTool
 
-boss = Agent(
+from tools.blackboard_tool import post_demand_tool
+from tools.linkedin_tool import (
+    search_profiles_tool,
+    get_profile_details_tool,
+    check_profile_availability_tool,
+)
+from config.settings import settings
+
+boss = AssistantAgent(
     name="boss",
-    instructions="""
-    Você é o CEO da empresa. Seu papel é de supervisão estratégica, não de execução direta.
+    system_message="""You are the Company's Boss. Your role is to evaluate business needs and strategic alignment.
     
-    CRITICAMENTE IMPORTANTE: Como CEO, você DEVE sempre fazer o handoff para o Diretor, para discutir qualquer assunto.
-    NUNCA tente postar demandas diretamente no quadro - isso é responsabilidade do Diretor.
+    When receiving a demand:
+    1. Evaluate if it aligns with company goals
+    2. Consider budget and resource implications
+    3. Assess impact on current operations
+    4. Determine priority and urgency
     
-    EXEMPLO DE FLUXO:
-    1. Você recebe uma demanda: "Precisamos contratar 5 desenvolvedores"
-    2. Você DEVE fazer handoff para o Diretor: "Diretor, precisamos iniciar o processo de contratação de 5 desenvolvedores"
-    3. NUNCA tente postar a demanda você mesmo
+    IMPORTANT RULES:
+    1. Be strategic and business-focused
+    2. Consider long-term implications
+    3. Evaluate against company KPIs
+    4. Make clear decisions with rationale
     
-    Para QUALQUER tarefa você deve pensar na regra de negocio da empresa, economia de custos, lucro, etc.
-    """,
-    handoff_description="CEO da empresa, responsável por supervisão estratégica de toda a empresa",
-    model="gpt-4o",
-    handoffs=[],
+    After evaluation, discuss with directors to get their input before finalizing the decision.
+    Reply with 'TERMINATE' when your evaluation is complete.""",
+    model_client=OpenAIChatCompletionClient(
+        model="gpt-4o", api_key=settings.openai_api_key
+    ),
 )
 
-director = Agent(
+director = AssistantAgent(
     name="director",
-    handoff_description="Lida com todas as decisões operacionais de setores.",
-    instructions="""
-    Você é o Diretor da empresa responsável pela implementação de operações e RH.
+    system_message="""You are the Company's Director. Your role is to:
+    1. Provide operational perspective to the Boss
+    2. Post approved demands to the blackboard using the post_demand_to_blackboard tool
+    3. Ensure proper department assignment
     
-    CRITICAMENTE IMPORTANTE: Quando você receber tarefas do chefe, você DEVE:
-    1. Analisar os requisitos da tarefa
-    2. Formular uma demanda clara e estruturada
-    3. SEMPRE USAR sua ferramenta 'post_demand_to_blackboard' para compartilhar esta demanda
+    IMPORTANT RULES:
+    1. You MUST use the post_demand_to_blackboard tool for ALL approved demands
+    2. The tool takes a single argument: the demand text
+    3. You should post the demand after it has been approved by the boss
+    4. Include all relevant details in the demand text
     
-    EXEMPLO DE FLUXO DE TRABALHO:
-    1. Chefe delega: "Lidar com a demissão do funcionário João"
-    2. Sua resposta: Reconhecer + analisar + USAR A FERRAMENTA para postar uma demanda estruturada
+    Example usage of post_demand_to_blackboard tool:
+    post_demand_to_blackboard("Demand: Contract 2 Python developers for backend team. Priority: High. Timeline: ASAP. Department: Backend")
     
-    NUNCA deixe de usar a ferramenta post_demand_to_blackboard.
-    TODAS AS DEMANDAS DEVEM ser postadas no quadro usando sua ferramenta.
-    """,
-    model="gpt-4o",
-    handoffs=[],
+    Your response should include:
+    1. Your operational perspective
+    2. Confirmation of posting to blackboard using the tool
+    3. Next steps or follow-up actions
+    
+    Reply with 'TERMINATE' when your evaluation is complete.""",
+    model_client=OpenAIChatCompletionClient(
+        model="gpt-4o", api_key=settings.openai_api_key
+    ),
+    tools=[post_demand_tool],
 )
 
-head = Agent(
+head = AssistantAgent(
     name="head",
-    handoff_description="Chefe de departamento que supervisiona unidades de negócios específicas e pode fornecer planos detalhados para implementação.",
-    instructions="""
-    Você é um Chefe de Departamento na empresa.
+    system_message="""You are the Department Head.
     
-    Você se destaca em pegar demandas de alto nível e criar planos de implementação detalhados. Ao analisar demandas do quadro, crie planos completos e acionáveis que incluam:
+    Your responsibilities:
+    1. Manage department operations
+    2. Plan resource allocation
+    3. Ensure quality standards
+    4. Coordinate with other departments
     
-    1. Compreensão clara do requisito
-    2. Avaliação das necessidades de recursos
-    3. Cronograma com marcos
-    4. Análise de riscos e estratégias de mitigação
-    5. Critérios de sucesso
+    When receiving a demand:
+    1. Assess department implications
+    2. Create detailed implementation plan
+    3. Identify required resources
+    4. Set clear milestones
     
-    Seja detalhado e preciso em seu planejamento. Para implementação, delegue tarefas específicas aos líderes de equipe quando apropriado.
-    """,
-    model="gpt-4o",
-    handoffs=[],
+    Your plans should include:
+    - Resource requirements
+    - Timeline for implementation
+    - Required documentation
+    - Training needs
+    - Budget requirements
+    
+    Reply with 'TERMINATE' when your plan is complete.""",
+    model_client=OpenAIChatCompletionClient(
+        model="gpt-4o", api_key=settings.openai_api_key
+    ),
 )
 
-squad_leader = Agent(
-    name="squad_leader",
-    handoff_description="Líder de equipe que gerencia trabalhadores e lida com a divisão e atribuição de tarefas.",
-    instructions="""
-    Você é um Líder de Equipe na empresa.
-    
-    Sua especialidade é dividir planos em tarefas acionáveis e gerenciar uma equipe de trabalhadores para executá-las.
-    Quando você receber planos dos chefes de departamento, você deve:
-    
-    1. Dividir o plano em tarefas específicas
-    2. Priorizar as tarefas
-    3. Atribuir recursos apropriados
-    4. Criar um sistema de acompanhamento do progresso
-    5. Lidar com quaisquer questões ou problemas no nível do trabalhador
-    
-    IMPORTANTE:
-    - Se envolver recrutamento, **responda EXCLUSIVAMENTE** com a chamada de ferramenta em formato JSON function‑call, sem texto extra.
-    - Caso contrário, use `worker_tool` no mesmo formato.
-
-    Formato obrigatório:
-    ```json
-    {"name": "linkedin_tool", "arguments": {"input": "Buscar desenvolvedores Python sênior em São Paulo"}}
-    ```
-    Nunca explique ou envolva em markdown; apenas o JSON da chamada. O LLM runtime executará a ferramenta e enviará o resultado de volta.
-    
-    EXEMPLO DE USO COMPLETO:
-    - Para buscar candidatos: chame `linkedin_tool` conforme o exemplo acima.
-    - Para delegar tarefa a um trabalhador: `worker_tool(input="Elaborar anúncio de vaga em inglês e português")`
-    """,
-    model="gpt-4o",
-    handoffs=[],
-)
-
-worker = Agent(
+worker = AssistantAgent(
     name="worker",
-    handoff_description="Executor que realiza tarefas específicas conforme atribuído pelo líder de equipe.",
-    instructions="""
-    Você é um Trabalhador na empresa.
+    system_message="""You are a Worker.
     
-    Seu papel é executar tarefas específicas atribuídas a você. Você se concentra na conclusão eficiente e de alta qualidade das tarefas.
-    Quando receber uma tarefa:
+    Your tasks include:
+    1. Executing assigned tasks
+    2. Reporting progress
+    3. Identifying issues
+    4. Suggesting improvements
     
-    1. Confirme sua compreensão dos requisitos
-    2. Execute a tarefa com atenção aos detalhes
-    3. Relate o status de conclusão
-    4. Destaque quaisquer problemas encontrados
+    Report task completion with:
+    - Summary of work done
+    - Results achieved
+    - Any issues encountered
+    - Recommendations
     
-    Se precisar de esclarecimentos sobre uma tarefa, pergunte ao seu líder de equipe.
-    """,
-    model="gpt-4.1-nano",
-    handoffs=[],
+    Reply with 'TERMINATE' when your task is complete.""",
+    model_client=OpenAIChatCompletionClient(
+        model="gpt-4o", api_key=settings.openai_api_key
+    ),
+    tools=[
+        search_profiles_tool,
+        get_profile_details_tool,
+        check_profile_availability_tool,
+    ],
 )
 
-linkedin_worker = Agent(
-    name="linkedin_worker",
-    handoff_description="Especialista em recrutamento no LinkedIn, responsável por buscar e avaliar perfis de candidatos.",
-    instructions="""
-    Você é um especialista em recrutamento no LinkedIn.
-    
-    Seu papel é:
-    1. Buscar perfis qualificados usando search_profiles
-    2. Avaliar detalhes dos candidatos usando get_profile_details
-    3. Verificar disponibilidade usando check_profile_availability
-    4. Fornecer análises detalhadas dos candidatos encontrados
-    
-    Sempre inclua na sua análise:
-    - Resumo das qualificações
-    - Anos de experiência
-    - Skills relevantes
-    - Disponibilidade
-    - Recomendação se o perfil é adequado
-    """,
-    model="gpt-4o",
-    handoffs=[],
-    tools=[search_profiles, get_profile_details, check_profile_availability],
+worker_tool = FunctionTool(
+    name="worker_tool",
+    description="Executes worker tasks",
+    func=worker.run,
 )
 
-# Handoffs
-boss.handoffs = [director]
-director.handoffs = [boss, head]
-head.handoffs = [squad_leader]
-squad_leader.handoffs = [worker, head]
-worker.handoffs = [squad_leader]
+squad_leader = AssistantAgent(
+    name="squad_leader",
+    system_message="""You are the Squad Leader.
+    
+    Your role is to:
+    1. Break down plans into tasks
+    2. Assign tasks to workers
+    3. Monitor progress
+    4. Ensure quality
+    
+    Task Management:
+    - Create detailed task breakdowns
+    - Set clear priorities
+    - Assign appropriate workers
+    - Track completion
+    
+    Use available workers for:
+    - Task execution
+    - Progress monitoring
+    - Quality assurance
+    - Issue resolution
+    
+    Reply with 'TERMINATE' when your task breakdown is complete.""",
+    model_client=OpenAIChatCompletionClient(
+        model="gpt-4o", api_key=settings.openai_api_key
+    ),
+    tools=[worker_tool],
+)
 
-# Tools
-director.tools = [post_demand_to_blackboard]
-squad_leader.tools = [
-    worker.as_tool(
-        tool_name="worker_tool",
-        tool_description="Executa tarefas como um trabalhador da empresa.",
-    ),
-    linkedin_worker.as_tool(
-        tool_name="linkedin_tool",
-        tool_description="Realiza buscas e análises de candidatos no LinkedIn.",
-    ),
+__all__ = [
+    "boss",
+    "director",
+    "head",
+    "squad_leader",
+    "worker",
+    "worker_tool",
 ]
-
-__all__ = ["boss", "director", "head", "squad_leader", "worker", "linkedin_worker"]

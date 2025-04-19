@@ -1,4 +1,4 @@
-from agents import function_tool
+from autogen_core.tools import FunctionTool
 import random
 from typing import List, Dict
 
@@ -52,8 +52,7 @@ MOCK_PROFILES = [
 ]
 
 
-@function_tool
-def search_profiles(
+async def search_profiles(
     role: str = "Python Developer", experience_years: int = 0
 ) -> List[Dict]:
     """
@@ -75,8 +74,7 @@ def search_profiles(
     return filtered_profiles
 
 
-@function_tool
-def get_profile_details(profile_name: str) -> Dict:
+async def get_profile_details(profile_name: str) -> Dict:
     """
     Get detailed information about a specific profile (mock).
 
@@ -93,8 +91,7 @@ def get_profile_details(profile_name: str) -> Dict:
     return {"error": "Profile not found"}
 
 
-@function_tool
-def check_profile_availability(profile_name: str) -> Dict:
+async def check_profile_availability(profile_name: str) -> Dict:
     """
     Check if a profile is open to work opportunities (mock).
 
@@ -112,3 +109,23 @@ def check_profile_availability(profile_name: str) -> Dict:
         "response_rate": f"{random.randint(70, 99)}%",
         "last_active": "Recently active",
     }
+
+
+# Create the tool instances
+search_profiles_tool = FunctionTool(
+    name="search_profiles",
+    description="Search for professional profiles on LinkedIn",
+    func=search_profiles,
+)
+
+get_profile_details_tool = FunctionTool(
+    name="get_profile_details",
+    description="Get detailed information about a specific profile on LinkedIn",
+    func=get_profile_details,
+)
+
+check_profile_availability_tool = FunctionTool(
+    name="check_profile_availability",
+    description="Check if a LinkedIn profile is open to work opportunities",
+    func=check_profile_availability,
+)

@@ -1,10 +1,14 @@
-# Multi-Agent Blackboard System
+# Multi-Agent Blackboard System with AutoGen
 
-Sistema de gerenciamento de processos usando agentes de IA e quadro negro (blackboard) para coordenação.
+Sistema de gerenciamento de processos usando agentes de IA com AutoGen e quadro negro (blackboard) para coordenação.
 
 ## Descrição
 
-Este sistema implementa um modelo de agentes de IA que trabalham em conjunto para processar demandas e tarefas. O sistema utiliza um quadro negro (blackboard) como meio de comunicação entre os agentes.
+Este sistema implementa um modelo de agentes de IA que trabalham em conjunto para processar demandas e tarefas. O sistema utiliza:
+
+- **AutoGen**: Framework para criação de agentes LLM colaborativos
+- **Blackboard**: Padrão de design para comunicação entre agentes
+- **FastAPI**: Para exposição de endpoints de API
 
 ## Agentes
 
@@ -13,6 +17,14 @@ Este sistema implementa um modelo de agentes de IA que trabalham em conjunto par
 - **Head**: Analisa demandas e cria planos estruturados
 - **Squad Leader**: Divide planos em tarefas acionáveis
 - **Worker**: Executa tarefas específicas
+
+## Arquitetura AutoGen
+
+O sistema foi implementado usando AutoGen, que oferece:
+
+- **AssistantAgent**: Implementação de agentes independentes
+- **RoundRobinGroupChat**: Coordenação de conversas entre agentes
+- **FunctionTool**: Ferramentas especializadas para os agentes usarem
 
 ## Requisitos
 
@@ -48,11 +60,7 @@ Este sistema implementa um modelo de agentes de IA que trabalham em conjunto par
    python src/main.py
    ```
 
-2. Comandos disponíveis:
-   - Digite uma tarefa para processar
-   - Digite 'view' para ver o conteúdo do quadro negro
-   - Digite 'help' para ver os comandos disponíveis
-   - Digite 'exit' ou pressione Ctrl+C para sair
+2. Digite uma tarefa para processar, e o sistema usará o fluxo de agentes do AutoGen para processá-la.
 
 ### API Mode
 
